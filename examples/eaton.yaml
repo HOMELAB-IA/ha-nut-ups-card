@@ -1,0 +1,12 @@
+type: custom:nut-ups-card
+name: Eaton 3S
+image: /local/eaton-3s.png
+prefix: myups            # ⚠️ à confirmer : même préfixe que l'APC dans la liste fournie (voir docs/ENTITIES.md)
+accent: "#3ecf6e"
+load_alert: 85
+sections:
+  input: open            # rendu "Sortie" (pas de tension d'entrée sur ce modèle)
+  battery: open
+  timers: collapsed      # "Prises & minuteries"
+entities:
+  outlet_1_desc: sensor.infra_myups_description_de_la_prise_powershare_outlet_1

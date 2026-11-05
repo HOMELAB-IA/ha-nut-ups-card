@@ -1,0 +1,121 @@
+# Carte Lovelace — onduleur Eaton 3S (Network UPS Tools)
+# Cartes natives HA. Photo : /config/www/eaton3s.png (PNG transparent)
+# ⚠️ Les entités sont en "myups_*" comme l'APC : vérifier qu'elles pointent bien
+#    vers l'Eaton (sinon renommer l'appareil NUT, ex. "eaton", et remplacer le préfixe).
+type: vertical-stack
+cards:
+  - type: picture-entity
+    entity: sensor.myups_etat
+    name: Eaton 3S
+    image: /local/eaton3s.png
+    show_name: true
+    show_state: true
+    aspect_ratio: "4:3"
+
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: tile
+        entity: sensor.myups_autonomie_de_la_batterie
+        name: Autonomie
+        icon: mdi:timer-sand
+        color: green
+      - type: tile
+        entity: sensor.myups_puissance_reelle_actuelle
+        name: Puissance
+        icon: mdi:flash
+        color: blue
+
+  - type: conditional
+    conditions:
+      - condition: state
+        entity: sensor.myups_code_d_etat
+        state_not:
+          - OL
+          - OL CHRG
+          - unavailable
+    card:
+      type: markdown
+      content: >-
+        ## ⚠️ Onduleur hors secteur
+        Code NUT : **{{ states('sensor.myups_code_d_etat') }}** —
+        batterie {{ states('sensor.myups_charge_de_la_batterie') }} % —
+        autonomie {{ (states('sensor.myups_autonomie_de_la_batterie') | float(0) / 60) | round(0) }} min
+
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: gauge
+        entity: sensor.myups_charge_de_la_batterie
+        name: Batterie
+        min: 0
+        max: 100
+        needle: true
+        severity: {green: 60, yellow: 25, red: 0}
+      - type: gauge
+        entity: sensor.myups_charge
+        name: Charge (sortie)
+        min: 0
+        max: 100
+        needle: true
+        severity: {green: 0, yellow: 60, red: 85}
+
+  - type: entities
+    title: Sortie
+    entities:
+      - entity: sensor.myups_tension_de_sortie
+        name: Tension de sortie
+        icon: mdi:flash
+      - entity: sensor.myups_tension_de_sortie_nominale
+        name: Nominale
+      - entity: sensor.myups_transfert_tension_basse
+        name: Bascule basse
+        icon: mdi:arrow-collapse-down
+      - entity: sensor.myups_transfert_tension_haute
+        name: Bascule haute
+        icon: mdi:arrow-collapse-up
+      - entity: sensor.myups_frequence_de_sortie_nominale
+        name: Fréquence nominale
+        icon: mdi:sine-wave
+      - entity: sensor.myups_puissance_nominale
+        name: Puissance nominale
+
+  - type: entities
+    title: Batterie
+    entities:
+      - entity: sensor.myups_consigne_de_batterie_faible
+        name: Seuil batterie faible
+        icon: mdi:battery-alert-variant-outline
+      - entity: sensor.myups_chimie_de_la_batterie
+        name: Chimie
+        icon: mdi:flask-outline
+      - entity: sensor.myups_etat_du_signal_sonore
+        name: Signal sonore
+        icon: mdi:volume-high
+      - entity: sensor.myups_code_d_etat
+        name: Code d'état
+        icon: mdi:information-outline
+      - entity: sensor.myups_type_d_ups
+        name: Type d'UPS
+        icon: mdi:power-plug-battery
+
+  - type: entities
+    title: Prises & minuteries
+    entities:
+      - entity: sensor.infra_myups_description_de_la_prise_powershare_outlet_1
+        name: Prise PowerShare 1
+        icon: mdi:power-socket-fr
+      - entity: sensor.myups_delai_d_arret_de_l_onduleur
+        name: Délai d'arrêt onduleur
+        icon: mdi:timer-off-outline
+      - entity: sensor.myups_charger_le_delai_de_redemarrage
+        name: Délai de redémarrage
+        icon: mdi:timer-refresh-outline
+      - entity: sensor.myups_minuterie_de_demarrage_de_la_charge
+        name: Minuterie démarrage charge
+        icon: mdi:timer-play-outline
+      - entity: sensor.myups_minuterie_d_arret_de_la_charge
+        name: Minuterie arrêt charge
+        icon: mdi:timer-stop-outline

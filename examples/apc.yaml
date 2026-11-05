@@ -1,0 +1,11 @@
+type: custom:nut-ups-card
+name: APC
+model: Back-UPS
+image: /local/apc-back-ups.png
+prefix: myups
+accent: "#3ecf6e"
+load_alert: 85
+sections:
+  input: open
+  battery: open
+  timers: collapsed

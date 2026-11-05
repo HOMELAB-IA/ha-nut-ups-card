@@ -1,0 +1,122 @@
+# Carte Lovelace — onduleur APC Back-UPS (Network UPS Tools)
+# Cartes natives HA. Photo : /config/www/apc.png (PNG transparent)
+type: vertical-stack
+cards:
+  - type: picture-entity
+    entity: sensor.myups_etat
+    name: APC
+    image: /local/apc.png
+    show_name: true
+    show_state: true
+    aspect_ratio: "4:3"
+
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: tile
+        entity: sensor.myups_autonomie_de_la_batterie
+        name: Autonomie
+        icon: mdi:timer-sand
+        color: green
+      - type: tile
+        entity: sensor.myups_puissance_reelle_nominale
+        name: Puissance nominale
+        icon: mdi:lightning-bolt
+        color: blue
+
+  - type: conditional
+    conditions:
+      - condition: state
+        entity: sensor.myups_code_d_etat
+        state_not:
+          - OL
+          - OL CHRG
+          - unavailable
+    card:
+      type: markdown
+      content: >-
+        ## ⚠️ Onduleur hors secteur
+        Code NUT : **{{ states('sensor.myups_code_d_etat') }}** —
+        batterie {{ states('sensor.myups_charge_de_la_batterie') }} % —
+        autonomie {{ (states('sensor.myups_autonomie_de_la_batterie') | float(0) / 60) | round(0) }} min
+
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: gauge
+        entity: sensor.myups_charge_de_la_batterie
+        name: Batterie
+        min: 0
+        max: 100
+        needle: true
+        severity: {green: 60, yellow: 25, red: 0}
+      - type: gauge
+        entity: sensor.myups_charge
+        name: Charge (sortie)
+        min: 0
+        max: 100
+        needle: true
+        severity: {green: 0, yellow: 60, red: 85}
+
+  - type: entities
+    title: Entrée secteur
+    entities:
+      - entity: sensor.myups_tension_d_entree
+        name: Tension d'entrée
+        icon: mdi:flash
+      - entity: sensor.myups_tension_d_entree_nominale
+        name: Nominale
+      - entity: sensor.myups_transfert_tension_basse
+        name: Bascule basse
+        icon: mdi:arrow-collapse-down
+      - entity: sensor.myups_transfert_tension_haute
+        name: Bascule haute
+        icon: mdi:arrow-collapse-up
+      - entity: sensor.myups_sensibilite_de_la_puissance_d_entree
+        name: Sensibilité d'entrée
+        icon: mdi:tune-variant
+      - entity: sensor.myups_code_d_etat
+        name: Code d'état
+        icon: mdi:information-outline
+
+  - type: entities
+    title: Batterie
+    entities:
+      - entity: sensor.myups_tension_de_la_batterie
+        name: Tension
+        icon: mdi:car-battery
+      - entity: sensor.myups_tension_nominale_de_la_batterie
+        name: Tension nominale
+      - entity: sensor.myups_consigne_de_batterie_faible
+        name: Seuil batterie faible
+        icon: mdi:battery-alert-variant-outline
+      - entity: sensor.myups_autonomie_de_la_batterie_faible
+        name: Autonomie batterie faible
+        icon: mdi:timer-alert-outline
+      - entity: sensor.myups_chimie_de_la_batterie
+        name: Chimie
+        icon: mdi:flask-outline
+      - entity: sensor.myups_date_de_fabrication_de_la_batterie
+        name: Fabriquée le
+        icon: mdi:calendar
+      - entity: sensor.myups_resultat_de_l_autotest
+        name: Résultat de l'autotest
+        icon: mdi:clipboard-check-outline
+      - entity: sensor.myups_etat_du_signal_sonore
+        name: Signal sonore
+        icon: mdi:volume-high
+
+  - type: entities
+    title: Minuteries
+    entities:
+      - entity: sensor.myups_delai_d_arret_de_l_onduleur
+        name: Délai d'arrêt onduleur
+        icon: mdi:timer-off-outline
+      - entity: sensor.myups_minuterie_d_arret_de_la_charge
+        name: Minuterie arrêt charge
+        icon: mdi:timer-stop-outline
+      - entity: sensor.myups_minuterie_de_redemarrage_de_la_charge
+        name: Minuterie redémarrage charge
+        icon: mdi:timer-refresh-outline
