@@ -1,4 +1,4 @@
-![NUT UPS Card](https://raw.githubusercontent.com/an02H/ha-nut-ups-card/main/assets/banner.png)
+![NUT UPS Card](https://raw.githubusercontent.com/HOMELAB-IA/ha-nut-ups-card/main/assets/banner.png)
 
 # NUT UPS Card
 
@@ -32,7 +32,7 @@ Testée avec un **APC Back-UPS** (HAOS) et un **Eaton 3S** (DAMU).
 
 ### Via HACS (HA 2024.1 – 2026.10)
 
-1. HACS → ⋮ → Dépôts personnalisés → coller `an02H/ha-nut-ups-card` → catégorie **Lovelace**
+1. HACS → ⋮ → Dépôts personnalisés → coller `HOMELAB-IA/ha-nut-ups-card` → catégorie **Lovelace**
 2. Télécharger **NUT UPS Card**
 3. Tableau de bord → ⋮ → Modifier → Gérer les ressources → Ajouter `/hacsfiles/nut-ups-card/nut-ups-card.js`
 
@@ -52,7 +52,7 @@ Dans l'éditeur de carte, cliquer sur « Choisir une image » — le fichier est
 
 **B. URL distante (aucune action requise)**
 ```yaml
-image: https://raw.githubusercontent.com/an02H/ha-nut-ups-card/main/assets/apc-back-ups.png
+image: https://raw.githubusercontent.com/HOMELAB-IA/ha-nut-ups-card/main/assets/apc-back-ups.png
 ```
 Nécessite qu'HA ait accès à internet.
 

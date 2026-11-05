@@ -1,7 +1,7 @@
 type: custom:nut-ups-card
 name: APC
 model: Back-UPS
-image: https://raw.githubusercontent.com/an02H/ha-nut-ups-card/main/assets/apc-back-ups.png
+image: https://raw.githubusercontent.com/HOMELAB-IA/ha-nut-ups-card/main/assets/apc-back-ups.png
 # ou après upload via l'éditeur, ou fichier local : /local/apc-back-ups.png
 prefix: myups
 accent: "#3ecf6e"
