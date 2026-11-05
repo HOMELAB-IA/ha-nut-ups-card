@@ -13,6 +13,17 @@ export const cardStyles = css`
     --nut-separator: #33363c;
   }
 
+  :host {
+    display: block;
+    width: 100%;
+    container-type: inline-size;
+    container-name: nut-card;
+  }
+
+  ha-card {
+    width: 100%;
+  }
+
   .card {
     background: linear-gradient(180deg, #22242a 0%, #18191d 100%);
     background: var(--nut-card-bg);
@@ -24,20 +35,25 @@ export const cardStyles = css`
     gap: 16px;
     font-family: inherit;
     color: var(--nut-text);
+    width: 100%;
+    box-sizing: border-box;
   }
 
   /* ── Header ─────────────────────────────────────── */
   .header {
     display: grid;
-    grid-template-columns: 210px 1fr;
+    grid-template-columns: min(210px, 40%) 1fr;
     align-items: center;
     gap: 16px;
   }
 
-  .header img {
-    width: 210px;
-    height: 200px;
+  .header img,
+  .header svg {
+    width: min(210px, 40vw);
+    height: auto;
+    max-height: 200px;
     object-fit: contain;
+    display: block;
   }
 
   .header-info {
@@ -49,15 +65,18 @@ export const cardStyles = css`
   }
 
   .pill {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
+    gap: 6px;
+    padding: 5px 10px;
     border-radius: 999px;
     border: 1px solid #3a3d44;
     color: var(--nut-text);
     font-size: 14px;
     font-weight: 500;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
   }
 
   .pill-dot {
@@ -105,6 +124,23 @@ export const cardStyles = css`
   .runtime-value {
     font-size: 26px;
     font-weight: 700;
+  }
+
+  @container nut-card (max-width: 320px) {
+    .header { grid-template-columns: 35% 1fr; gap: 10px; }
+    .pill { font-size: 11px; padding: 4px 8px; gap: 5px; }
+    .pill-dot { width: 8px; height: 8px; }
+    .ups-name { font-size: 20px; }
+    .ups-model { font-size: 12px; }
+    .runtime-value { font-size: 18px; }
+    .block-value { font-size: 18px; }
+    .card { padding: 14px; gap: 12px; }
+  }
+
+  @container nut-card (max-width: 260px) {
+    .header { grid-template-columns: 1fr; }
+    .header img, .header svg { width: 80px; max-height: 80px; margin: 0 auto; }
+    .header-info { align-items: center; text-align: center; }
   }
 
   /* ── Blocks ──────────────────────────────────────── */
