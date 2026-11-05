@@ -1,8 +1,22 @@
+![NUT UPS Card](https://raw.githubusercontent.com/an02H/ha-nut-ups-card/main/assets/banner.png)
+
 # NUT UPS Card
 
 Carte Lovelace custom pour Home Assistant affichant les onduleurs remontés par l'intégration **Network UPS Tools (NUT)**.
 
 Testée avec un **APC Back-UPS** (HAOS) et un **Eaton 3S** (DAMU).
+
+---
+
+## Prérequis
+
+| Prérequis | Version minimale | Remarque |
+|---|---|---|
+| Home Assistant | **2026.1.0** | Pour le Marketplace intégré |
+| Intégration NUT | incluse dans HA | Doit être configurée et les entités visibles |
+| Upload d'image dans l'éditeur | **2023.6** | Facultatif — uniquement si vous utilisez le bouton « Choisir une image » dans l'éditeur visuel |
+
+> **Note sur les `entity_id` :** les suffixes NUT sont générés par HA dans la langue de l'interface au moment de la première configuration. Cette carte utilise les suffixes **français** par défaut. Si vos entités ont des noms différents (instance en anglais, renommage manuel…), utilisez `entities:` pour les surcharger une par une.
 
 ---
 
@@ -12,18 +26,44 @@ Testée avec un **APC Back-UPS** (HAOS) et un **Eaton 3S** (DAMU).
 
 1. **Paramètres › Marketplace › Cartes**
 2. Rechercher **NUT UPS Card**
-3. Télécharger, puis ajouter la ressource dans votre tableau de bord
+3. Télécharger — la ressource est ajoutée automatiquement
 
-### Via HACS (HA < 2026.11)
+> Le Marketplace installe le fichier JS dans `/local/community/nut-ups-card/`. Les images des onduleurs ne sont **pas** incluses dans ce fichier : voir la section [Images des onduleurs](#images-des-onduleurs) ci-dessous.
+
+### Via HACS (HA 2024.1 – 2026.10)
 
 1. HACS → ⋮ → Dépôts personnalisés → coller `an02H/ha-nut-ups-card` → catégorie **Lovelace**
 2. Télécharger **NUT UPS Card**
-3. Ajouter la ressource dans votre tableau de bord
+3. Tableau de bord → ⋮ → Modifier → Gérer les ressources → Ajouter `/hacsfiles/nut-ups-card/nut-ups-card.js`
 
 ### Manuellement
 
 1. Copier `dist/nut-ups-card.js` dans `config/www/`
 2. Tableau de bord → ⋮ → Modifier → Gérer les ressources → Ajouter `/local/nut-ups-card.js`
+
+---
+
+## Images des onduleurs
+
+Le champ `image:` de la configuration accepte trois formes :
+
+**A. Upload via l'éditeur visuel (recommandé, HA ≥ 2023.6)**
+Dans l'éditeur de carte, cliquer sur « Choisir une image » — le fichier est uploadé dans HA et l'URL est remplie automatiquement.
+
+**B. URL distante (aucune action requise)**
+```yaml
+image: https://raw.githubusercontent.com/an02H/ha-nut-ups-card/main/assets/apc-back-ups.png
+```
+Nécessite qu'HA ait accès à internet.
+
+**C. Fichier local**
+Copier le PNG dans `config/www/` puis :
+```yaml
+image: /local/apc-back-ups.png
+```
+Les fichiers sources sont disponibles dans le dossier [`assets/`](assets/) du dépôt.
+
+> Si `image:` est omis, la carte affiche une icône onduleur générique à la place.
 
 ---
 

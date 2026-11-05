@@ -1,6 +1,7 @@
 type: custom:nut-ups-card
 name: Eaton 3S
-image: /local/eaton-3s.png
+image: https://raw.githubusercontent.com/an02H/ha-nut-ups-card/main/assets/eaton-3s.png
+# ou après upload via l'éditeur, ou fichier local : /local/eaton-3s.png
 prefix: myups            # ⚠️ à confirmer : même préfixe que l'APC dans la liste fournie (voir docs/ENTITIES.md)
 accent: "#3ecf6e"
 load_alert: 85

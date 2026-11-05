@@ -5,6 +5,7 @@ import { styleMap } from "lit/directives/style-map.js";
 import { cardStyles } from "./styles.js";
 import { getEntity, getVal, getNum, getEntityId } from "./entities.js";
 import { parseNutStatus, formatRuntime, clamp, barPos } from "./nut-status.js";
+import { upsDefaultImage } from "./icons.js";
 import type { CardConfig, Hass, SectionState } from "./types.js";
 
 const CARD_VERSION = "0.1.0";
@@ -144,7 +145,7 @@ class NutUpsCard extends LitElement {
       <div class="header">
         ${c.image
           ? html`<img src="${c.image}" alt="Onduleur ${c.name}" />`
-          : html`<div style="width:210px;height:200px"></div>`}
+          : upsDefaultImage}
         <div class="header-info">
           <div class="pill" style=${styleMap({ background: nutStatus.color + "22" })}>
             <span
