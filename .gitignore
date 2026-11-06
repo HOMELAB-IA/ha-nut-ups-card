@@ -3,3 +3,9 @@ dist/*.map
 *.local
 .env
 docs/screenshot-*.png
+
+# Internal — not for public repo
+CLAUDE.md
+docs/PLUS-JAMAIS.md
+design/
+dev/
