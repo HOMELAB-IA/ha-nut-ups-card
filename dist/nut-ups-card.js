@@ -732,6 +732,27 @@ function formatRuntime(seconds) {
     }
     return `${Math.floor(seconds / 60)} min`;
 }
+// HA/NUT may return a pre-formatted string like "47min 40s" or a plain number (minutes or seconds).
+// unit: the entity's unit_of_measurement ("min", "s", or undefined)
+function parseRuntimeState(state, unit) {
+    if (!state || state === "unavailable" || state === "unknown")
+        return undefined;
+    // Already a formatted string like "47min 40s" or "1h 02min"
+    const mixedMatch = state.match(/(?:(\d+)h\s*)?(?:(\d+)min)?\s*(?:(\d+)s)?/i);
+    if (mixedMatch && (mixedMatch[1] || mixedMatch[2] || mixedMatch[3])) {
+        const h = parseInt(mixedMatch[1] || "0", 10);
+        const m = parseInt(mixedMatch[2] || "0", 10);
+        const s = parseInt(mixedMatch[3] || "0", 10);
+        return h * 3600 + m * 60 + s;
+    }
+    const n = parseFloat(state);
+    if (isNaN(n))
+        return undefined;
+    // Plain number: interpret by unit
+    if (unit === "min")
+        return n * 60;
+    return n; // assume seconds
+}
 function clamp(v, min = 0, max = 100) {
     return Math.max(min, Math.min(max, v));
 }
@@ -864,9 +885,10 @@ class NutUpsCard extends i$2 {
         getVal(h, "status", c);
         const statusCode = getVal(h, "status_code", c);
         const nutStatus = parseNutStatus(statusCode, accent);
-        // Runtime
-        const runtimeSec = getNum(h, "battery_runtime", c);
-        const runtimeStr = runtimeSec !== undefined ? formatRuntime(runtimeSec) : "—";
+        // Runtime — NUT may return a pre-formatted string ("47min 40s") or a number
+        const runtimeEnt = getEntity(h, "battery_runtime", c);
+        const runtimeSec = parseRuntimeState(runtimeEnt?.state, runtimeEnt?.attributes?.unit_of_measurement);
+        const runtimeStr = formatRuntime(runtimeSec);
         // Model
         const model = c.model ?? getVal(h, "ups_type", c) ?? "";
         return b `

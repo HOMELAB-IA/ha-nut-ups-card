@@ -72,6 +72,25 @@ export function formatRuntime(seconds: number | undefined): string {
   return `${Math.floor(seconds / 60)} min`;
 }
 
+// HA/NUT may return a pre-formatted string like "47min 40s" or a plain number (minutes or seconds).
+// unit: the entity's unit_of_measurement ("min", "s", or undefined)
+export function parseRuntimeState(state: string | undefined, unit: string | undefined): number | undefined {
+  if (!state || state === "unavailable" || state === "unknown") return undefined;
+  // Already a formatted string like "47min 40s" or "1h 02min"
+  const mixedMatch = state.match(/(?:(\d+)h\s*)?(?:(\d+)min)?\s*(?:(\d+)s)?/i);
+  if (mixedMatch && (mixedMatch[1] || mixedMatch[2] || mixedMatch[3])) {
+    const h = parseInt(mixedMatch[1] || "0", 10);
+    const m = parseInt(mixedMatch[2] || "0", 10);
+    const s = parseInt(mixedMatch[3] || "0", 10);
+    return h * 3600 + m * 60 + s;
+  }
+  const n = parseFloat(state);
+  if (isNaN(n)) return undefined;
+  // Plain number: interpret by unit
+  if (unit === "min") return n * 60;
+  return n; // assume seconds
+}
+
 export function clamp(v: number, min = 0, max = 100): number {
   return Math.max(min, Math.min(max, v));
 }

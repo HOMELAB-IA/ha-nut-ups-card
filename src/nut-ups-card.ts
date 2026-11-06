@@ -4,7 +4,7 @@ import { property, state } from "lit/decorators.js";
 import { styleMap } from "lit/directives/style-map.js";
 import { cardStyles } from "./styles.js";
 import { getEntity, getVal, getNum, getEntityId } from "./entities.js";
-import { parseNutStatus, formatRuntime, clamp, barPos } from "./nut-status.js";
+import { parseNutStatus, formatRuntime, parseRuntimeState, clamp, barPos } from "./nut-status.js";
 import { upsDefaultImage } from "./icons.js";
 import type { CardConfig, Hass, SectionState } from "./types.js";
 
@@ -112,9 +112,10 @@ class NutUpsCard extends LitElement {
     const statusCode = getVal(h, "status_code", c);
     const nutStatus = parseNutStatus(statusCode, accent);
 
-    // Runtime
-    const runtimeSec = getNum(h, "battery_runtime", c);
-    const runtimeStr = runtimeSec !== undefined ? formatRuntime(runtimeSec) : "—";
+    // Runtime — NUT may return a pre-formatted string ("47min 40s") or a number
+    const runtimeEnt = getEntity(h, "battery_runtime", c);
+    const runtimeSec = parseRuntimeState(runtimeEnt?.state, runtimeEnt?.attributes?.unit_of_measurement);
+    const runtimeStr = formatRuntime(runtimeSec);
 
     // Model
     const model = c.model ?? getVal(h, "ups_type", c) ?? "";
