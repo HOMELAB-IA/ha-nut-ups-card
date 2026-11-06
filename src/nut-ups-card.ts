@@ -8,7 +8,7 @@ import { parseNutStatus, formatRuntime, parseRuntimeState, clamp, barPos } from 
 import { upsDefaultImage } from "./icons.js";
 import type { CardConfig, Hass, SectionState } from "./types.js";
 
-const CARD_VERSION = "0.1.0";
+const CARD_VERSION = "0.2.0";
 
 interface SectionsState {
   input: boolean;
