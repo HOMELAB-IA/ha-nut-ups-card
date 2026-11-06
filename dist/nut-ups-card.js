@@ -882,7 +882,6 @@ class NutUpsCard extends i$2 {
         const h = this.hass;
         const accent = this._accent();
         // Status
-        getVal(h, "status", c);
         const statusCode = getVal(h, "status_code", c);
         const nutStatus = parseNutStatus(statusCode, accent);
         // Runtime — NUT may return a pre-formatted string ("47min 40s") or a number
@@ -896,7 +895,7 @@ class NutUpsCard extends i$2 {
         <div class="card">
           ${this._renderHeader(nutStatus, statusCode, runtimeStr, model, accent)}
           ${this._renderBatteryCharge(accent)}
-          ${this._renderLoad(accent)}
+          ${this._renderLoad()}
           ${this._renderInputOutput()}
           ${this._renderBatteryDetails()}
           ${this._renderTimers()}
@@ -982,7 +981,7 @@ class NutUpsCard extends i$2 {
       </div>
     `;
     }
-    _renderLoad(accent) {
+    _renderLoad() {
         const c = this._config;
         const h = this.hass;
         const loadPct = getNum(h, "load", c);
@@ -1331,5 +1330,6 @@ _w.customCards.push({
     name: "NUT UPS Card",
     description: "Carte Lovelace pour onduleurs remontés par l'intégration NUT",
     preview: true,
+    documentationURL: "https://github.com/an02H/ha-nut-ups-card",
 });
 console.info(`%c NUT UPS Card %c v${CARD_VERSION} `, "color:#3ecf6e;font-weight:bold", "color:#a6abb3");

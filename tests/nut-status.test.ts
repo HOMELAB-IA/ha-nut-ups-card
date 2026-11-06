@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseNutStatus, formatRuntime, barPos, clamp } from "../src/nut-status.js";
+import { parseNutStatus, formatRuntime, parseRuntimeState, barPos, clamp } from "../src/nut-status.js";
 
 const ACCENT = "#3ecf6e";
 
@@ -55,6 +55,17 @@ describe("formatRuntime", () => {
   it("0 → 0 min", () => expect(formatRuntime(0)).toBe("0 min"));
   it("negative → —", () => expect(formatRuntime(-1)).toBe("—"));
   it("undefined → —", () => expect(formatRuntime(undefined)).toBe("—"));
+});
+
+describe("parseRuntimeState", () => {
+  it("parses '47min 40s' → 2860 s", () => expect(parseRuntimeState("47min 40s", "min")).toBe(2860));
+  it("parses '1h 02min' → 3720 s", () => expect(parseRuntimeState("1h 02min", undefined)).toBe(3720));
+  it("parses plain number with unit=min → seconds", () => expect(parseRuntimeState("90", "min")).toBe(5400));
+  it("parses plain number with unit=s → seconds", () => expect(parseRuntimeState("120", "s")).toBe(120));
+  it("unavailable → undefined", () => expect(parseRuntimeState("unavailable", "min")).toBeUndefined());
+  it("unknown → undefined", () => expect(parseRuntimeState("unknown", undefined)).toBeUndefined());
+  it("undefined state → undefined", () => expect(parseRuntimeState(undefined, "min")).toBeUndefined());
+  it("non-numeric string → undefined", () => expect(parseRuntimeState("N/A", undefined)).toBeUndefined());
 });
 
 describe("barPos", () => {

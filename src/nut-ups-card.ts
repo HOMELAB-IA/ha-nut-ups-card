@@ -108,13 +108,15 @@ class NutUpsCard extends LitElement {
     const accent = this._accent();
 
     // Status
-    const statusVal = getVal(h, "status", c);
     const statusCode = getVal(h, "status_code", c);
     const nutStatus = parseNutStatus(statusCode, accent);
 
     // Runtime — NUT may return a pre-formatted string ("47min 40s") or a number
     const runtimeEnt = getEntity(h, "battery_runtime", c);
-    const runtimeSec = parseRuntimeState(runtimeEnt?.state, runtimeEnt?.attributes?.unit_of_measurement);
+    const runtimeSec = parseRuntimeState(
+      runtimeEnt?.state,
+      runtimeEnt?.attributes?.unit_of_measurement
+    );
     const runtimeStr = formatRuntime(runtimeSec);
 
     // Model
@@ -124,11 +126,8 @@ class NutUpsCard extends LitElement {
       <ha-card>
         <div class="card">
           ${this._renderHeader(nutStatus, statusCode, runtimeStr, model, accent)}
-          ${this._renderBatteryCharge(accent)}
-          ${this._renderLoad(accent)}
-          ${this._renderInputOutput()}
-          ${this._renderBatteryDetails()}
-          ${this._renderTimers()}
+          ${this._renderBatteryCharge(accent)} ${this._renderLoad()} ${this._renderInputOutput()}
+          ${this._renderBatteryDetails()} ${this._renderTimers()}
         </div>
       </ha-card>
     `;
@@ -144,9 +143,7 @@ class NutUpsCard extends LitElement {
     const c = this._config;
     return html`
       <div class="header">
-        ${c.image
-          ? html`<img src="${c.image}" alt="Onduleur ${c.name}" />`
-          : upsDefaultImage}
+        ${c.image ? html`<img src="${c.image}" alt="Onduleur ${c.name}" />` : upsDefaultImage}
         <div class="header-info">
           <div class="pill" style=${styleMap({ background: nutStatus.color + "22" })}>
             <span
@@ -167,7 +164,9 @@ class NutUpsCard extends LitElement {
               style=${styleMap({ color: accent })}
               data-entity="${getEntityId("battery_runtime", c)}"
               @click="${this._clickHandler(getEntityId("battery_runtime", c))}"
-            >${runtimeStr}</div>
+            >
+              ${runtimeStr}
+            </div>
           </div>
         </div>
       </div>
@@ -192,36 +191,38 @@ class NutUpsCard extends LitElement {
             class="block-value"
             data-entity="${getEntityId("battery_charge", c)}"
             @click="${this._clickHandler(getEntityId("battery_charge", c))}"
-          >${pctDisplay}</span>
+            >${pctDisplay}</span
+          >
         </div>
-        ${pct !== undefined
-          ? html`
-            <div class="bar-wrap">
-              <div class="bar-track">
-                <div
-                  class="bar-fill"
-                  style=${styleMap({
-                    width: `${clamp(pct)}%`,
-                    background: `linear-gradient(90deg, ${accent}66 0%, ${accent} 100%)`,
-                  })}
-                ></div>
-                <div
-                  class="bar-marker"
-                  style=${styleMap({ left: `${low}%`, background: "#ff7a6b" })}
-                ></div>
-              </div>
-              <div class="bar-legend">
-                <span>0 %</span>
-                <span>Seuil faible ${low} %</span>
-                <span>100 %</span>
-              </div>
-            </div>`
-          : nothing}
+        ${
+          pct !== undefined
+            ? html` <div class="bar-wrap">
+                <div class="bar-track">
+                  <div
+                    class="bar-fill"
+                    style=${styleMap({
+                      width: `${clamp(pct)}%`,
+                      background: `linear-gradient(90deg, ${accent}66 0%, ${accent} 100%)`,
+                    })}
+                  ></div>
+                  <div
+                    class="bar-marker"
+                    style=${styleMap({ left: `${low}%`, background: "#ff7a6b" })}
+                  ></div>
+                </div>
+                <div class="bar-legend">
+                  <span>0 %</span>
+                  <span>Seuil faible ${low} %</span>
+                  <span>100 %</span>
+                </div>
+              </div>`
+            : nothing
+        }
       </div>
     `;
   }
 
-  private _renderLoad(accent: string): TemplateResult {
+  private _renderLoad(): TemplateResult {
     const c = this._config;
     const h = this.hass;
     const loadPct = getNum(h, "load", c);
@@ -234,12 +235,13 @@ class NutUpsCard extends LitElement {
     if (powerReal !== undefined) {
       powerStr = `· ${Math.round(powerReal)} W`;
     } else if (loadPct !== undefined && powerNominal !== undefined) {
-      powerStr = `· ≈ ${Math.round(loadPct * powerNominal / 100)} W`;
+      powerStr = `· ≈ ${Math.round((loadPct * powerNominal) / 100)} W`;
     }
 
-    const nomLabel = powerNominal !== undefined
-      ? `Nominale ${Math.round(powerNominal)} ${getEntity(h, "power_nominal", c)?.attributes?.unit_of_measurement ?? "W"}`
-      : "";
+    const nomLabel =
+      powerNominal !== undefined
+        ? `Nominale ${Math.round(powerNominal)} ${getEntity(h, "power_nominal", c)?.attributes?.unit_of_measurement ?? "W"}`
+        : "";
 
     return html`
       <div class="block">
@@ -252,33 +254,35 @@ class NutUpsCard extends LitElement {
             <span
               data-entity="${getEntityId("load", c)}"
               @click="${this._clickHandler(getEntityId("load", c))}"
-            >${loadDisplay}</span>
+              >${loadDisplay}</span
+            >
             ${powerStr ? html`<span class="block-value-sub"> ${powerStr}</span>` : nothing}
           </span>
         </div>
-        ${loadPct !== undefined
-          ? html`
-            <div class="bar-wrap">
-              <div class="bar-track">
-                <div
-                  class="bar-fill"
-                  style=${styleMap({
-                    width: `${clamp(loadPct)}%`,
-                    background: "linear-gradient(90deg, #2563c9 0%, #4aa3ff 100%)",
-                  })}
-                ></div>
-                <div
-                  class="bar-marker"
-                  style=${styleMap({ left: `${loadAlert}%`, background: "#ff7a6b" })}
-                ></div>
-              </div>
-              <div class="bar-legend">
-                <span>0 %</span>
-                <span>Alerte ${loadAlert} %</span>
-                <span>${nomLabel}</span>
-              </div>
-            </div>`
-          : nothing}
+        ${
+          loadPct !== undefined
+            ? html` <div class="bar-wrap">
+                <div class="bar-track">
+                  <div
+                    class="bar-fill"
+                    style=${styleMap({
+                      width: `${clamp(loadPct)}%`,
+                      background: "linear-gradient(90deg, #2563c9 0%, #4aa3ff 100%)",
+                    })}
+                  ></div>
+                  <div
+                    class="bar-marker"
+                    style=${styleMap({ left: `${loadAlert}%`, background: "#ff7a6b" })}
+                  ></div>
+                </div>
+                <div class="bar-legend">
+                  <span>0 %</span>
+                  <span>Alerte ${loadAlert} %</span>
+                  <span>${nomLabel}</span>
+                </div>
+              </div>`
+            : nothing
+        }
       </div>
     `;
   }
@@ -333,41 +337,52 @@ class NutUpsCard extends LitElement {
               class="block-value"
               data-entity="${getEntityId(voltageEntityKey, c)}"
               @click="${this._clickHandler(getEntityId(voltageEntityKey, c))}"
-            >${Math.round(voltage)} V</span>
+              >${Math.round(voltage)} V</span
+            >
             ${chevronIcon(open)}
           </span>
         </button>
-        ${open ? html`
-          <div class="collapsible-content">
-            ${hasBar ? html`
-              <div class="bar-track" style="margin-top:4px">
-                <div
-                  class="bar-fill"
-                  style=${styleMap({
-                    width: `${inPos}%`,
-                    background: "linear-gradient(90deg, #c9761a 0%, #f5b84a 100%)",
-                  })}
-                ></div>
-                <div
-                  class="bar-marker"
-                  style=${styleMap({ left: `${nomPos}%`, background: "#e8eaed" })}
-                ></div>
-              </div>
-              <div class="bar-legend">
-                <span>Bascule basse ${transferLow} V</span>
-                <span>Nominale ${nomV} V</span>
-                <span>Bascule haute ${transferHigh} V</span>
-              </div>` : nothing}
-            ${footerVal ? html`
-              <div class="footer-row">
-                <span class="footer-label">${footerLabel}</span>
-                <span
-                  class="footer-value"
-                  data-entity="${getEntityId(footerKey, c)}"
-                  @click="${this._clickHandler(getEntityId(footerKey, c))}"
-                >${footerVal}${footerEntity?.attributes?.unit_of_measurement ? " " + footerEntity.attributes.unit_of_measurement : ""}</span>
-              </div>` : nothing}
-          </div>` : nothing}
+        ${
+          open
+            ? html` <div class="collapsible-content">
+                ${
+                  hasBar
+                    ? html` <div class="bar-track" style="margin-top:4px">
+                          <div
+                            class="bar-fill"
+                            style=${styleMap({
+                              width: `${inPos}%`,
+                              background: "linear-gradient(90deg, #c9761a 0%, #f5b84a 100%)",
+                            })}
+                          ></div>
+                          <div
+                            class="bar-marker"
+                            style=${styleMap({ left: `${nomPos}%`, background: "#e8eaed" })}
+                          ></div>
+                        </div>
+                        <div class="bar-legend">
+                          <span>Bascule basse ${transferLow} V</span>
+                          <span>Nominale ${nomV} V</span>
+                          <span>Bascule haute ${transferHigh} V</span>
+                        </div>`
+                    : nothing
+                }
+                ${
+                  footerVal
+                    ? html` <div class="footer-row">
+                        <span class="footer-label">${footerLabel}</span>
+                        <span
+                          class="footer-value"
+                          data-entity="${getEntityId(footerKey, c)}"
+                          @click="${this._clickHandler(getEntityId(footerKey, c))}"
+                          >${footerVal}${footerEntity?.attributes?.unit_of_measurement ? " " + footerEntity.attributes.unit_of_measurement : ""}</span
+                        >
+                      </div>`
+                    : nothing
+                }
+              </div>`
+            : nothing
+        }
       </div>
     `;
   }
@@ -382,9 +397,11 @@ class NutUpsCard extends LitElement {
     const vBatNom = getNum(h, "battery_voltage_nominal", c);
     const chemistry = getVal(h, "battery_chemistry", c);
 
-    const headerVal = vBat !== undefined
-      ? html`${vBat.toFixed(1)} V${vBatNom !== undefined ? html`<span class="block-value-sub"> / ${vBatNom} V nom.</span>` : nothing}`
-      : (chemistry ?? "Batterie");
+    const headerVal =
+      vBat !== undefined
+        ? html`${vBat.toFixed(1)}
+          V${vBatNom !== undefined ? html`<span class="block-value-sub"> / ${vBatNom} V nom.</span>` : nothing}`
+        : (chemistry ?? "Batterie");
 
     const open = this._sections.battery;
 
@@ -411,49 +428,72 @@ class NutUpsCard extends LitElement {
             ${chevronIcon(open)}
           </span>
         </button>
-        ${open ? html`
-          <div class="detail-grid separator">
-            ${runtimeLow !== undefined ? html`
-              <div class="detail-cell">
-                <span class="detail-label">Autonomie batterie faible</span>
-                <span
-                  class="detail-value"
-                  @click="${this._clickHandler(getEntityId("battery_runtime_low", c))}"
-                >${formatRuntime(runtimeLow)}</span>
-              </div>` : nothing}
-            ${chemistry ? html`
-              <div class="detail-cell">
-                <span class="detail-label">Chimie</span>
-                <span
-                  class="detail-value"
-                  @click="${this._clickHandler(getEntityId("battery_chemistry", c))}"
-                >${chemistry}</span>
-              </div>` : nothing}
-            ${mfrDate ? html`
-              <div class="detail-cell">
-                <span class="detail-label">Fabriquée le</span>
-                <span
-                  class="detail-value"
-                  @click="${this._clickHandler(getEntityId("battery_mfr_date", c))}"
-                >${mfrDate}</span>
-              </div>` : nothing}
-            ${selfTest ? html`
-              <div class="detail-cell">
-                <span class="detail-label">Résultat de l'autotest</span>
-                <span
-                  class="detail-value"
-                  @click="${this._clickHandler(getEntityId("self_test", c))}"
-                >${selfTest}</span>
-              </div>` : nothing}
-            ${beeper ? html`
-              <div class="detail-cell">
-                <span class="detail-label">Signal sonore</span>
-                <span
-                  class="detail-value"
-                  @click="${this._clickHandler(getEntityId("beeper", c))}"
-                >${beeper}</span>
-              </div>` : nothing}
-          </div>` : nothing}
+        ${
+          open
+            ? html` <div class="detail-grid separator">
+                ${
+                  runtimeLow !== undefined
+                    ? html` <div class="detail-cell">
+                        <span class="detail-label">Autonomie batterie faible</span>
+                        <span
+                          class="detail-value"
+                          @click="${this._clickHandler(getEntityId("battery_runtime_low", c))}"
+                          >${formatRuntime(runtimeLow)}</span
+                        >
+                      </div>`
+                    : nothing
+                }
+                ${
+                  chemistry
+                    ? html` <div class="detail-cell">
+                        <span class="detail-label">Chimie</span>
+                        <span
+                          class="detail-value"
+                          @click="${this._clickHandler(getEntityId("battery_chemistry", c))}"
+                          >${chemistry}</span
+                        >
+                      </div>`
+                    : nothing
+                }
+                ${
+                  mfrDate
+                    ? html` <div class="detail-cell">
+                        <span class="detail-label">Fabriquée le</span>
+                        <span
+                          class="detail-value"
+                          @click="${this._clickHandler(getEntityId("battery_mfr_date", c))}"
+                          >${mfrDate}</span
+                        >
+                      </div>`
+                    : nothing
+                }
+                ${
+                  selfTest
+                    ? html` <div class="detail-cell">
+                        <span class="detail-label">Résultat de l'autotest</span>
+                        <span
+                          class="detail-value"
+                          @click="${this._clickHandler(getEntityId("self_test", c))}"
+                          >${selfTest}</span
+                        >
+                      </div>`
+                    : nothing
+                }
+                ${
+                  beeper
+                    ? html` <div class="detail-cell">
+                        <span class="detail-label">Signal sonore</span>
+                        <span
+                          class="detail-value"
+                          @click="${this._clickHandler(getEntityId("beeper", c))}"
+                          >${beeper}</span
+                        >
+                      </div>`
+                    : nothing
+                }
+              </div>`
+            : nothing
+        }
       </div>
     `;
   }
@@ -471,8 +511,7 @@ class NutUpsCard extends LitElement {
     const loadRestart = getVal(h, "load_restart_timer", c);
     const outlet1 = getVal(h, "outlet_1_desc", c);
 
-    const hasAny =
-      shutdownDelay ?? restartDelay ?? loadOff ?? loadOn ?? loadRestart ?? outlet1;
+    const hasAny = shutdownDelay ?? restartDelay ?? loadOff ?? loadOn ?? loadRestart ?? outlet1;
     if (!hasAny) return nothing;
 
     const title = outlet1 ? "Prises & minuteries" : "Minuteries";
@@ -496,57 +535,84 @@ class NutUpsCard extends LitElement {
           </span>
           ${chevronIcon(open)}
         </button>
-        ${open ? html`
-          <div class="detail-grid separator">
-            ${outlet1 ? html`
-              <div class="detail-cell full-width">
-                <span class="detail-label">Prise PowerShare</span>
-                <span
-                  class="detail-value"
-                  @click="${this._clickHandler(getEntityId("outlet_1_desc", c))}"
-                >${outlet1}</span>
-              </div>` : nothing}
-            ${shutdownDelay !== undefined ? html`
-              <div class="detail-cell full-width">
-                <span class="detail-label">Délai d'arrêt onduleur</span>
-                <span
-                  class="detail-value"
-                  @click="${this._clickHandler(getEntityId("shutdown_delay", c))}"
-                >${fmtTimer(shutdownDelay)}</span>
-              </div>` : nothing}
-            ${restartDelay !== undefined ? html`
-              <div class="detail-cell">
-                <span class="detail-label">Délai de redémarrage</span>
-                <span
-                  class="detail-value"
-                  @click="${this._clickHandler(getEntityId("restart_delay", c))}"
-                >${fmtTimer(restartDelay)}</span>
-              </div>` : nothing}
-            ${loadOff !== undefined ? html`
-              <div class="detail-cell">
-                <span class="detail-label">Minuterie arrêt charge</span>
-                <span
-                  class="detail-value"
-                  @click="${this._clickHandler(getEntityId("load_off_timer", c))}"
-                >${fmtTimer(loadOff)}</span>
-              </div>` : nothing}
-            ${loadOn !== undefined ? html`
-              <div class="detail-cell">
-                <span class="detail-label">Minuterie démarrage charge</span>
-                <span
-                  class="detail-value"
-                  @click="${this._clickHandler(getEntityId("load_on_timer", c))}"
-                >${fmtTimer(loadOn)}</span>
-              </div>` : nothing}
-            ${loadRestart !== undefined ? html`
-              <div class="detail-cell">
-                <span class="detail-label">Minuterie redémarrage charge</span>
-                <span
-                  class="detail-value"
-                  @click="${this._clickHandler(getEntityId("load_restart_timer", c))}"
-                >${fmtTimer(loadRestart)}</span>
-              </div>` : nothing}
-          </div>` : nothing}
+        ${
+          open
+            ? html` <div class="detail-grid separator">
+                ${
+                  outlet1
+                    ? html` <div class="detail-cell full-width">
+                        <span class="detail-label">Prise PowerShare</span>
+                        <span
+                          class="detail-value"
+                          @click="${this._clickHandler(getEntityId("outlet_1_desc", c))}"
+                          >${outlet1}</span
+                        >
+                      </div>`
+                    : nothing
+                }
+                ${
+                  shutdownDelay !== undefined
+                    ? html` <div class="detail-cell full-width">
+                        <span class="detail-label">Délai d'arrêt onduleur</span>
+                        <span
+                          class="detail-value"
+                          @click="${this._clickHandler(getEntityId("shutdown_delay", c))}"
+                          >${fmtTimer(shutdownDelay)}</span
+                        >
+                      </div>`
+                    : nothing
+                }
+                ${
+                  restartDelay !== undefined
+                    ? html` <div class="detail-cell">
+                        <span class="detail-label">Délai de redémarrage</span>
+                        <span
+                          class="detail-value"
+                          @click="${this._clickHandler(getEntityId("restart_delay", c))}"
+                          >${fmtTimer(restartDelay)}</span
+                        >
+                      </div>`
+                    : nothing
+                }
+                ${
+                  loadOff !== undefined
+                    ? html` <div class="detail-cell">
+                        <span class="detail-label">Minuterie arrêt charge</span>
+                        <span
+                          class="detail-value"
+                          @click="${this._clickHandler(getEntityId("load_off_timer", c))}"
+                          >${fmtTimer(loadOff)}</span
+                        >
+                      </div>`
+                    : nothing
+                }
+                ${
+                  loadOn !== undefined
+                    ? html` <div class="detail-cell">
+                        <span class="detail-label">Minuterie démarrage charge</span>
+                        <span
+                          class="detail-value"
+                          @click="${this._clickHandler(getEntityId("load_on_timer", c))}"
+                          >${fmtTimer(loadOn)}</span
+                        >
+                      </div>`
+                    : nothing
+                }
+                ${
+                  loadRestart !== undefined
+                    ? html` <div class="detail-cell">
+                        <span class="detail-label">Minuterie redémarrage charge</span>
+                        <span
+                          class="detail-value"
+                          @click="${this._clickHandler(getEntityId("load_restart_timer", c))}"
+                          >${fmtTimer(loadRestart)}</span
+                        >
+                      </div>`
+                    : nothing
+                }
+              </div>`
+            : nothing
+        }
       </div>
     `;
   }
@@ -555,27 +621,103 @@ class NutUpsCard extends LitElement {
 // ── SVG icons ────────────────────────────────────────────────────────────────
 
 function batteryIcon(accent: string): TemplateResult {
-  return html`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${accent}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="16" height="10" rx="2"></rect><path d="M21 11v2M6 10v4M9 10v4M12 10v4"></path></svg>`;
+  return html`<svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="${accent}"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <rect x="3" y="7" width="16" height="10" rx="2"></rect>
+    <path d="M21 11v2M6 10v4M9 10v4M12 10v4"></path>
+  </svg>`;
 }
 
 function loadIcon(): TemplateResult {
-  return html`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4aa3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22v-5M9 8V2M15 8V2M18 8v4a6 6 0 0 1-12 0V8z"></path></svg>`;
+  return html`<svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#4aa3ff"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 22v-5M9 8V2M15 8V2M18 8v4a6 6 0 0 1-12 0V8z"></path>
+  </svg>`;
 }
 
 function lightningIcon(): TemplateResult {
-  return html`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f5b84a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"></path></svg>`;
+  return html`<svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#f5b84a"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"></path>
+  </svg>`;
 }
 
 function batteryDetailIcon(): TemplateResult {
-  return html`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a6abb3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="16" height="10" rx="2"></rect><path d="M21 11v2M7 12h4M9 10v4"></path></svg>`;
+  return html`<svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#a6abb3"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <rect x="3" y="7" width="16" height="10" rx="2"></rect>
+    <path d="M21 11v2M7 12h4M9 10v4"></path>
+  </svg>`;
 }
 
 function timerIcon(): TemplateResult {
-  return html`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c4a5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2M9 2h6"></path></svg>`;
+  return html`<svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#c4a5ff"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="13" r="8"></circle>
+    <path d="M12 9v4l2 2M9 2h6"></path>
+  </svg>`;
 }
 
 function chevronIcon(open: boolean): TemplateResult {
-  return html`<svg class="chevron ${open ? "open" : ""}" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a6abb3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>`;
+  return html`<svg
+    class="chevron ${open ? "open" : ""}"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#a6abb3"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="m6 9 6 6 6-6"></path>
+  </svg>`;
 }
 
 // ── Registration ─────────────────────────────────────────────────────────────
@@ -583,7 +725,13 @@ function chevronIcon(open: boolean): TemplateResult {
 customElements.define("nut-ups-card", NutUpsCard);
 
 type WindowWithCards = typeof window & {
-  customCards?: Array<{ type: string; name: string; description: string; preview?: boolean }>;
+  customCards?: Array<{
+    type: string;
+    name: string;
+    description: string;
+    preview?: boolean;
+    documentationURL?: string;
+  }>;
 };
 
 const _w = window as WindowWithCards;
@@ -593,6 +741,11 @@ _w.customCards.push({
   name: "NUT UPS Card",
   description: "Carte Lovelace pour onduleurs remontés par l'intégration NUT",
   preview: true,
+  documentationURL: "https://github.com/an02H/ha-nut-ups-card",
 });
 
-console.info(`%c NUT UPS Card %c v${CARD_VERSION} `, "color:#3ecf6e;font-weight:bold", "color:#a6abb3");
+console.info(
+  `%c NUT UPS Card %c v${CARD_VERSION} `,
+  "color:#3ecf6e;font-weight:bold",
+  "color:#a6abb3"
+);
